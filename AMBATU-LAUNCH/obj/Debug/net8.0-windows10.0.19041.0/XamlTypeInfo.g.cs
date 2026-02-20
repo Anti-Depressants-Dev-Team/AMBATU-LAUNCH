@@ -721,6 +721,7 @@ namespace AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo
                 userType.StaticInitializer = StaticInitializer_39_AppItem;
                 userType.AddMemberName("Name");
                 userType.AddMemberName("IconPath");
+                userType.AddMemberName("ExecutablePath");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
@@ -1293,52 +1294,62 @@ namespace AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo
             var that = (global::AMBATU_LAUNCH.Views.AppItem)instance;
             that.IconPath = (global::System.String)Value;
         }
-        private object get_51_TreeViewNode_Children(object instance)
+        private object get_51_AppItem_ExecutablePath(object instance)
+        {
+            var that = (global::AMBATU_LAUNCH.Views.AppItem)instance;
+            return that.ExecutablePath;
+        }
+        private void set_51_AppItem_ExecutablePath(object instance, object Value)
+        {
+            var that = (global::AMBATU_LAUNCH.Views.AppItem)instance;
+            that.ExecutablePath = (global::System.String)Value;
+        }
+        private object get_52_TreeViewNode_Children(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Children;
         }
-        private object get_52_TreeViewNode_Content(object instance)
+        private object get_53_TreeViewNode_Content(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Content;
         }
-        private void set_52_TreeViewNode_Content(object instance, object Value)
+        private void set_53_TreeViewNode_Content(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.Content = (global::System.Object)Value;
         }
-        private object get_53_TreeViewNode_Depth(object instance)
+        private object get_54_TreeViewNode_Depth(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Depth;
         }
-        private object get_54_TreeViewNode_HasChildren(object instance)
+        private object get_55_TreeViewNode_HasChildren(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.HasChildren;
         }
-        private object get_55_TreeViewNode_HasUnrealizedChildren(object instance)
+        private object get_56_TreeViewNode_HasUnrealizedChildren(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.HasUnrealizedChildren;
         }
-        private void set_55_TreeViewNode_HasUnrealizedChildren(object instance, object Value)
+        private void set_56_TreeViewNode_HasUnrealizedChildren(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.HasUnrealizedChildren = (global::System.Boolean)Value;
         }
-        private object get_56_TreeViewNode_IsExpanded(object instance)
+        private object get_57_TreeViewNode_IsExpanded(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.IsExpanded;
         }
-        private void set_56_TreeViewNode_IsExpanded(object instance, object Value)
+        private void set_57_TreeViewNode_IsExpanded(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.IsExpanded = (global::System.Boolean)Value;
         }
-        private object get_57_TreeViewNode_Parent(object instance)
+        private object get_58_TreeViewNode_Parent(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Parent;
@@ -1705,50 +1716,56 @@ namespace AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo
                 xamlMember.Getter = get_50_AppItem_IconPath;
                 xamlMember.Setter = set_50_AppItem_IconPath;
                 break;
+            case "AMBATU_LAUNCH.Views.AppItem.ExecutablePath":
+                userType = (global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AMBATU_LAUNCH.Views.AppItem");
+                xamlMember = new global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlMember(this, "ExecutablePath", "String");
+                xamlMember.Getter = get_51_AppItem_ExecutablePath;
+                xamlMember.Setter = set_51_AppItem_ExecutablePath;
+                break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Children":
                 userType = (global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlMember(this, "Children", "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>");
-                xamlMember.Getter = get_51_TreeViewNode_Children;
+                xamlMember.Getter = get_52_TreeViewNode_Children;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Content":
                 userType = (global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlMember(this, "Content", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_52_TreeViewNode_Content;
-                xamlMember.Setter = set_52_TreeViewNode_Content;
+                xamlMember.Getter = get_53_TreeViewNode_Content;
+                xamlMember.Setter = set_53_TreeViewNode_Content;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Depth":
                 userType = (global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlMember(this, "Depth", "Int32");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_53_TreeViewNode_Depth;
+                xamlMember.Getter = get_54_TreeViewNode_Depth;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.HasChildren":
                 userType = (global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlMember(this, "HasChildren", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_54_TreeViewNode_HasChildren;
+                xamlMember.Getter = get_55_TreeViewNode_HasChildren;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.HasUnrealizedChildren":
                 userType = (global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlMember(this, "HasUnrealizedChildren", "Boolean");
-                xamlMember.Getter = get_55_TreeViewNode_HasUnrealizedChildren;
-                xamlMember.Setter = set_55_TreeViewNode_HasUnrealizedChildren;
+                xamlMember.Getter = get_56_TreeViewNode_HasUnrealizedChildren;
+                xamlMember.Setter = set_56_TreeViewNode_HasUnrealizedChildren;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.IsExpanded":
                 userType = (global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlMember(this, "IsExpanded", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_56_TreeViewNode_IsExpanded;
-                xamlMember.Setter = set_56_TreeViewNode_IsExpanded;
+                xamlMember.Getter = get_57_TreeViewNode_IsExpanded;
+                xamlMember.Setter = set_57_TreeViewNode_IsExpanded;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Parent":
                 userType = (global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AMBATU_LAUNCH.AMBATU_LAUNCH_XamlTypeInfo.XamlMember(this, "Parent", "Microsoft.UI.Xaml.Controls.TreeViewNode");
-                xamlMember.Getter = get_57_TreeViewNode_Parent;
+                xamlMember.Getter = get_58_TreeViewNode_Parent;
                 xamlMember.SetIsReadOnly();
                 break;
             }

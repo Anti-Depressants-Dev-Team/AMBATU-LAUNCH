@@ -13,9 +13,10 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Padding="12">
-            <TextBlock Text="Icon Size:" VerticalAlignment="Center" Margin="0,0,12,0"/>
-            <Slider x:ConnectionId='4' x:Name="IconSizeSlider" Minimum="50" Maximum="200" Value="100" Width="200" />
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Padding="12" Spacing="12">
+            <Button x:ConnectionId='4' Content="Add App"                      />
+            <TextBlock Text="Icon Size:" VerticalAlignment="Center"/>
+            <Slider x:ConnectionId='5' x:Name="IconSizeSlider" Minimum="50" Maximum="200" Value="100" Width="200" />
         </StackPanel>
 
         <GridView x:ConnectionId='2' Grid.Row="1" x:Name="AppGrid" Padding="12">
@@ -23,7 +24,7 @@
                 <DataTemplate>
                     <StackPanel Width="{Binding ElementName=IconSizeSlider, Path=Value}" 
                                 Height="{Binding ElementName=IconSizeSlider, Path=Value}">
-                        <!-- <Image Source="{Binding IconPath}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" /> -->
+                        <Image Source="{Binding Icon}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" />
                         <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </DataTemplate>

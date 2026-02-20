@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AMBATU-LAUNCH")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8e8e4cd9c54b8e021f506a9dcefa1da0ed32522")]
 [assembly: System.Reflection.AssemblyProductAttribute("AMBATU-LAUNCH")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AMBATU-LAUNCH")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

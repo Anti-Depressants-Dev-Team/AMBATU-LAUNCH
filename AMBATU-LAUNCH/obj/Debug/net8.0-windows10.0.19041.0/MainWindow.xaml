@@ -18,7 +18,7 @@
                 <NavigationViewItemSeparator />
                 <NavigationViewItemHeader Content="Categories" />
                 <NavigationViewItem Icon="Folder" Content="Utilities" Tag="CategoryId_Utilities" />
-                <NavigationViewItem Icon="Game" Content="Games" Tag="CategoryId_Games" />
+                <NavigationViewItem Icon="Play" Content="Games" Tag="CategoryId_Games" />
             </NavigationView.MenuItems>
 
             <Frame x:ConnectionId='3' x:Name="ContentFrame" />

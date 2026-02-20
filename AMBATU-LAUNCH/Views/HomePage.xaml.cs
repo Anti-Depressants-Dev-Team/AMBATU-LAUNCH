@@ -1,6 +1,8 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
+using System;
+using WinRT.Interop;
 
 namespace AMBATU_LAUNCH.Views
 {
@@ -19,12 +21,34 @@ namespace AMBATU_LAUNCH.Views
             base.OnNavigatedTo(e);
 
             // Mock Data
-            if (Apps.Count == 0)
+            // Mock Data
+            // if (Apps.Count == 0)
+            // {
+            //    Apps.Add(new AppItem { Name = "Notepad", IconPath = "ms-appx:///Assets/StoreLogo.png" });
+            // }
+        }
+        private async void AddApp_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder;
+            picker.FileTypeFilter.Add(".exe");
+            picker.FileTypeFilter.Add(".lnk");
+
+            var window = App.MainWindow;
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
             {
-                Apps.Add(new AppItem { Name = "Notepad", IconPath = "ms-appx:///Assets/StoreLogo.png" });
-                Apps.Add(new AppItem { Name = "Calculator", IconPath = "ms-appx:///Assets/StoreLogo.png" });
-                Apps.Add(new AppItem { Name = "Browser", IconPath = "ms-appx:///Assets/StoreLogo.png" });
-                Apps.Add(new AppItem { Name = "File Explorer", IconPath = "ms-appx:///Assets/StoreLogo.png" });
+                var icon = await AMBATU_LAUNCH.Helpers.IconHelper.GetIconFromPath(file.Path);
+                Apps.Add(new AppItem 
+                { 
+                    Name = file.DisplayName, 
+                    Icon = icon,
+                    ExecutablePath = file.Path 
+                });
             }
         }
     }
@@ -32,6 +56,7 @@ namespace AMBATU_LAUNCH.Views
     public class AppItem
     {
         public string Name { get; set; }
-        public string IconPath { get; set; }
+        public Microsoft.UI.Xaml.Media.ImageSource Icon { get; set; }
+        public string ExecutablePath { get; set; }
     }
 }
