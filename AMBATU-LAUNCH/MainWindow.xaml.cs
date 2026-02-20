@@ -141,15 +141,18 @@ namespace AMBATU_LAUNCH
             }
         }
 
+        private object? _lastParam;
+
         private void NavView_Navigate(Type navPageType, Microsoft.UI.Xaml.Media.Animation.NavigationTransitionInfo transitionInfo, object param = null)
         {
             // Get the page type before navigation so you can prevent duplicate
             // entries in the backstack.
             Type preNavPageType = ContentFrame.CurrentSourcePageType;
 
-            // Only navigate if the selected page isn't currently loaded.
-            if (navPageType is not null && !Type.Equals(preNavPageType, navPageType))
+            // Only navigate if the selected page isn't currently loaded, OR if navigating to a different category parameter
+            if (navPageType is not null && (!Type.Equals(preNavPageType, navPageType) || !Equals(_lastParam, param)))
             {
+                _lastParam = param;
                 ContentFrame.Navigate(navPageType, param, transitionInfo);
             }
         }

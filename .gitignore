@@ -141,8 +141,10 @@ ASALocalRun/
 # Inno Setup output
 Output/
 AMBATU-LAUNCH/Output/
-installer.iss
 
+# App data
+apps.json
+settings.json
 # Generated app packages
 AppPackages/
 BundleArtifacts/

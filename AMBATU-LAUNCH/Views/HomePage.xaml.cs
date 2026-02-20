@@ -22,6 +22,7 @@ namespace AMBATU_LAUNCH.Views
         {
             this.InitializeComponent();
             AppGrid.ItemsSource = DisplayApps;
+            AppList.ItemsSource = DisplayApps;
             IconSizeSlider.Value = App.IconSize;
             m_iconSizeInitialized = true;
             Loaded += HomePage_Loaded;
@@ -57,8 +58,8 @@ namespace AMBATU_LAUNCH.Views
 
             var filtered = App.Apps.Where(app =>
             {
-                // Match category First
-                bool matchesCategory = m_currentCategory == "Home" || app.Category == m_currentCategory;
+                // Match category precisely
+                bool matchesCategory = app.Category == m_currentCategory;
                 
                 // Match search
                 bool matchesSearch = string.IsNullOrWhiteSpace(searchText) || 
@@ -101,18 +102,41 @@ namespace AMBATU_LAUNCH.Views
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
             WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
-            var file = await picker.PickSingleFileAsync();
-            if (file != null)
+            var files = await picker.PickMultipleFilesAsync();
+            if (files != null && files.Count > 0)
             {
-                var icon = await AMBATU_LAUNCH.Helpers.IconHelper.GetIconFromPath(file.Path);
-                App.Apps.Add(new AppItem 
-                { 
-                    Name = file.DisplayName, 
-                    Icon = icon,
-                    ExecutablePath = file.Path,
-                    Category = m_currentCategory
-                });
+                foreach (var file in files)
+                {
+                    var icon = await AMBATU_LAUNCH.Helpers.IconHelper.GetIconFromPath(file.Path);
+                    App.Apps.Add(new AppItem 
+                    { 
+                        Name = file.DisplayName, 
+                        Icon = icon,
+                        ExecutablePath = file.Path,
+                        Category = m_currentCategory
+                    });
+                }
                 await App.SaveAppsAsync();
+            }
+        }
+
+        private void ToggleViewMode_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            App.UpdateViewMode(!App.IsListViewMode);
+            UpdateViewModeUI();
+        }
+
+        private void UpdateViewModeUI()
+        {
+            if (App.IsListViewMode)
+            {
+                AppGrid.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+                AppList.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            }
+            else
+            {
+                AppGrid.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+                AppList.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
             }
         }
 
@@ -273,8 +297,9 @@ namespace AMBATU_LAUNCH.Views
         private async void HomePage_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             m_iconSizeInitialized = false;
-            App.ReloadIconSize();
+            App.ReloadSettings();
             IconSizeSlider.Value = App.IconSize;
+            UpdateViewModeUI();
             m_iconSizeInitialized = true;
             await App.EnsureAppsLoadedAsync();
             FilterApps();

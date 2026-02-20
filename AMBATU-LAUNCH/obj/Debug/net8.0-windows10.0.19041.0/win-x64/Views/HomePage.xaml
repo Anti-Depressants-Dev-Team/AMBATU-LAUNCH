@@ -14,14 +14,15 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Padding="12" Spacing="12">
-            <Button x:ConnectionId='9' Content="Add App"                      />
-            <TextBox x:ConnectionId='10' x:Name="SearchBox" 
+            <Button x:ConnectionId='15' Content="Add App"                      />
+            <Button x:ConnectionId='16' Content="Toggle View"                              />
+            <TextBox x:ConnectionId='17' x:Name="SearchBox" 
                      PlaceholderText="Search apps..." 
                      Width="200" 
                      VerticalAlignment="Center" 
                                                         />
             <TextBlock Text="Icon Size:" VerticalAlignment="Center" Margin="12,0,0,0"/>
-            <Slider x:ConnectionId='11' x:Name="IconSizeSlider"
+            <Slider x:ConnectionId='18' x:Name="IconSizeSlider"
                     Minimum="50"
                     Maximum="200"
                     Value="100"
@@ -46,23 +47,23 @@
                         <!-- We use a background brush to enable hover effects via visual states if we add them, or just let WinUI's default grid view item styling handle the hover natively -->
                         <Grid.ContextFlyout>
                             <MenuFlyout>
-                                <MenuFlyoutItem x:ConnectionId='5' Text="Rename"                        >
+                                <MenuFlyoutItem x:ConnectionId='11' Text="Rename"                        >
                                     <MenuFlyoutItem.Icon>
                                         <SymbolIcon Symbol="Rename"/>
                                     </MenuFlyoutItem.Icon>
                                 </MenuFlyoutItem>
-                                <MenuFlyoutItem x:ConnectionId='6' Text="Move to Category..."                             >
+                                <MenuFlyoutItem x:ConnectionId='12' Text="Move to Category..."                             >
                                     <MenuFlyoutItem.Icon>
                                         <SymbolIcon Symbol="MoveToFolder"/>
                                     </MenuFlyoutItem.Icon>
                                 </MenuFlyoutItem>
-                                <MenuFlyoutItem x:ConnectionId='7' Text="Open File Location"                               >
+                                <MenuFlyoutItem x:ConnectionId='13' Text="Open File Location"                               >
                                     <MenuFlyoutItem.Icon>
                                         <SymbolIcon Symbol="Folder"/>
                                     </MenuFlyoutItem.Icon>
                                 </MenuFlyoutItem>
                                 <MenuFlyoutSeparator/>
-                                <MenuFlyoutItem x:ConnectionId='8' Text="Remove from Launcher"                         Foreground="Red">
+                                <MenuFlyoutItem x:ConnectionId='14' Text="Remove from Launcher"                         Foreground="Red">
                                     <MenuFlyoutItem.Icon>
                                         <SymbolIcon Symbol="Delete"/>
                                     </MenuFlyoutItem.Icon>
@@ -82,7 +83,61 @@
             </GridView.ItemTemplate>
         </GridView>
 
-        <TextBlock x:ConnectionId='3' x:Name="EmptyStateTextBlock"
+        <ListView x:ConnectionId='3' Grid.Row="1"
+                  x:Name="AppList"
+                  Padding="12"
+                  IsItemClickEnabled="True"
+                                               
+                  SelectionMode="None"
+                  Visibility="Collapsed">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Background="Transparent"
+                          CornerRadius="8"
+                          Margin="4"
+                          Padding="8">
+                        <Grid.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem x:ConnectionId='6' Text="Rename"                        >
+                                    <MenuFlyoutItem.Icon>
+                                        <SymbolIcon Symbol="Rename"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem x:ConnectionId='7' Text="Move to Category..."                             >
+                                    <MenuFlyoutItem.Icon>
+                                        <SymbolIcon Symbol="MoveToFolder"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem x:ConnectionId='8' Text="Open File Location"                               >
+                                    <MenuFlyoutItem.Icon>
+                                        <SymbolIcon Symbol="Folder"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem x:ConnectionId='9' Text="Remove from Launcher"                         Foreground="Red">
+                                    <MenuFlyoutItem.Icon>
+                                        <SymbolIcon Symbol="Delete"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </Grid.ContextFlyout>
+                        
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Image Grid.Column="0" Source="{Binding Icon}" Width="48" Height="48" Stretch="Uniform" Margin="0,0,16,0"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                            <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" FontSize="16" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding ExecutablePath}" TextTrimming="CharacterEllipsis" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <TextBlock x:ConnectionId='4' x:Name="EmptyStateTextBlock"
                    Grid.Row="1"
                    Text="No apps in this category yet. Click 'Add App' to get started!"
                    HorizontalAlignment="Center"

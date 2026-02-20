@@ -20,6 +20,7 @@ namespace AMBATU_LAUNCH
         public static ObservableCollection<AppItem> Apps { get; } = new ObservableCollection<AppItem>();
         public static ObservableCollection<string> Categories { get; } = new ObservableCollection<string> { "Home" };
         public static double IconSize { get; private set; } = DefaultIconSize;
+        public static bool IsListViewMode { get; private set; } = false;
         public static DispatcherQueue? UiDispatcher { get; private set; }
 
         public App()
@@ -47,7 +48,7 @@ namespace AMBATU_LAUNCH
 
         private const string AppsFileName = "apps.json";
         private const string CategoriesFileName = "categories.json";
-        private const string IconSizeKey = "IconSize";
+        private const string SettingsFileName = "settings.json";
         private const double DefaultIconSize = 100d;
         private static bool s_appsLoaded;
 
@@ -66,35 +67,62 @@ namespace AMBATU_LAUNCH
         public static void UpdateIconSize(double size)
         {
             IconSize = size;
-            SaveIconSize(size);
+            SaveSettings();
         }
 
-        public static void ReloadIconSize()
+        public static void UpdateViewMode(bool isListView)
         {
-            IconSize = LoadIconSize();
+            IsListViewMode = isListView;
+            SaveSettings();
         }
+
+        public static void ReloadSettings()
+        {
+            if (!s_settingsLoaded)
+            {
+                LoadSettings();
+            }
+        }
+
+        private static bool _isSavingApps = false;
+        private static bool _pendingAppsSave = false;
 
         public static async Task SaveAppsAsync()
         {
+            if (_isSavingApps)
+            {
+                _pendingAppsSave = true;
+                return;
+            }
+
+            _isSavingApps = true;
             try
             {
-                var entries = Apps
-                    .Where(app => !string.IsNullOrWhiteSpace(app.ExecutablePath))
-                    .Select(app => new AppEntry
-                    {
-                        Name = app.Name,
-                        ExecutablePath = app.ExecutablePath,
-                        Category = app.Category
-                    })
-                    .ToList();
+                do
+                {
+                    _pendingAppsSave = false;
+                    var entries = Apps
+                        .Where(app => !string.IsNullOrWhiteSpace(app.ExecutablePath))
+                        .Select(app => new AppEntry
+                        {
+                            Name = app.Name,
+                            ExecutablePath = app.ExecutablePath,
+                            Category = app.Category
+                        })
+                        .ToList();
 
-                var json = JsonSerializer.Serialize(entries, new JsonSerializerOptions { WriteIndented = true });
-                var filePath = GetAppsFilePath();
-                await File.WriteAllTextAsync(filePath, json);
+                    var json = JsonSerializer.Serialize(entries, new JsonSerializerOptions { WriteIndented = true });
+                    var filePath = GetAppsFilePath();
+                    await File.WriteAllTextAsync(filePath, json);
+                } while (_pendingAppsSave);
             }
             catch
             {
                 // Ignore persistence failures.
+            }
+            finally
+            {
+                _isSavingApps = false;
             }
         }
 
@@ -145,38 +173,72 @@ namespace AMBATU_LAUNCH
             }
         }
 
-        private static double LoadIconSize()
+        private static bool s_settingsLoaded = false;
+        private static bool _isSavingSettings = false;
+        private static bool _pendingSettingsSave = false;
+
+        private static void LoadSettings()
         {
-            var settings = ApplicationData.Current.LocalSettings;
-            if (settings.Values.TryGetValue(IconSizeKey, out var value) && value != null)
+            try
             {
-                if (value is double d)
+                var folderPath = ApplicationData.Current.LocalFolder.Path;
+                var filePath = Path.Combine(folderPath, SettingsFileName);
+                if (File.Exists(filePath))
                 {
-                    return d;
-                }
-
-                if (value is float f)
-                {
-                    return f;
-                }
-
-                if (value is int i)
-                {
-                    return i;
-                }
-
-                if (double.TryParse(value.ToString(), out var parsed))
-                {
-                    return parsed;
+                    var json = File.ReadAllText(filePath);
+                    var settings = JsonSerializer.Deserialize<AppSettings>(json);
+                    if (settings != null)
+                    {
+                        IconSize = settings.IconSize;
+                        IsListViewMode = settings.IsListViewMode;
+                        s_settingsLoaded = true;
+                        return;
+                    }
                 }
             }
+            catch
+            {
+                // Ignore load failures.
+            }
 
-            return DefaultIconSize;
+            if (!s_settingsLoaded)
+            {
+                IconSize = DefaultIconSize;
+                IsListViewMode = false;
+                s_settingsLoaded = true;
+            }
         }
 
-        private static void SaveIconSize(double size)
+        private static async void SaveSettings()
         {
-            ApplicationData.Current.LocalSettings.Values[IconSizeKey] = size;
+            if (_isSavingSettings)
+            {
+                _pendingSettingsSave = true;
+                return;
+            }
+
+            _isSavingSettings = true;
+            try
+            {
+                do
+                {
+                    _pendingSettingsSave = false;
+                    var folderPath = ApplicationData.Current.LocalFolder.Path;
+                    var filePath = Path.Combine(folderPath, SettingsFileName);
+                    var settings = new AppSettings { IconSize = IconSize, IsListViewMode = IsListViewMode };
+                    var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+                    
+                    await File.WriteAllTextAsync(filePath, json);
+                } while (_pendingSettingsSave);
+            }
+            catch
+            {
+                // Ignore save failures.
+            }
+            finally
+            {
+                _isSavingSettings = false;
+            }
         }
 
         private static Task RunOnUiThreadAsync(Func<Task> action)
@@ -260,11 +322,17 @@ namespace AMBATU_LAUNCH
             }
         }
 
-        private sealed class AppEntry
+        public class AppEntry
         {
             public string Name { get; set; } = string.Empty;
             public string ExecutablePath { get; set; } = string.Empty;
             public string Category { get; set; } = "Home";
+        }
+
+        public class AppSettings
+        {
+            public double IconSize { get; set; } = DefaultIconSize;
+            public bool IsListViewMode { get; set; } = false;
         }
     }
 }

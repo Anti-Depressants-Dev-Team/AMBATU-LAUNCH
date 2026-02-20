@@ -15,6 +15,7 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Padding="12" Spacing="12">
             <Button Content="Add App" Click="AddApp_Click" />
+            <Button Content="Toggle View" Click="ToggleViewMode_Click" />
             <TextBox x:Name="SearchBox" 
                      PlaceholderText="Search apps..." 
                      Width="200" 
@@ -81,6 +82,60 @@
                 </DataTemplate>
             </GridView.ItemTemplate>
         </GridView>
+
+        <ListView Grid.Row="1"
+                  x:Name="AppList"
+                  Padding="12"
+                  IsItemClickEnabled="True"
+                  ItemClick="AppGrid_ItemClick"
+                  SelectionMode="None"
+                  Visibility="Collapsed">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Background="Transparent"
+                          CornerRadius="8"
+                          Margin="4"
+                          Padding="8">
+                        <Grid.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="Rename" Click="RenameApp_Click">
+                                    <MenuFlyoutItem.Icon>
+                                        <SymbolIcon Symbol="Rename"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="Move to Category..." Click="MoveToCategory_Click">
+                                    <MenuFlyoutItem.Icon>
+                                        <SymbolIcon Symbol="MoveToFolder"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="Open File Location" Click="OpenFileLocation_Click">
+                                    <MenuFlyoutItem.Icon>
+                                        <SymbolIcon Symbol="Folder"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Text="Remove from Launcher" Click="RemoveApp_Click" Foreground="Red">
+                                    <MenuFlyoutItem.Icon>
+                                        <SymbolIcon Symbol="Delete"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </Grid.ContextFlyout>
+                        
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Image Grid.Column="0" Source="{Binding Icon}" Width="48" Height="48" Stretch="Uniform" Margin="0,0,16,0"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                            <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" FontSize="16" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding ExecutablePath}" TextTrimming="CharacterEllipsis" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
 
         <TextBlock x:Name="EmptyStateTextBlock"
                    Grid.Row="1"
