@@ -17,7 +17,7 @@ namespace AMBATU_LAUNCH
             IntPtr hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             Microsoft.UI.WindowId windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
             Microsoft.UI.Windowing.AppWindow appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
-            appWindow.SetIcon("app.ico");
+            appWindow.SetIcon(System.IO.Path.Combine(System.AppContext.BaseDirectory, "app.ico"));
 
             SystemBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop();
 

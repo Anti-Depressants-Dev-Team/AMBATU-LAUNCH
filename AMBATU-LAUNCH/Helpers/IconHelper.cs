@@ -24,6 +24,12 @@ namespace AMBATU_LAUNCH.Helpers
                 return extractedIcon;
             }
 
+            var jumboIcon = await GetJumboShellIconAsync(iconPath);
+            if (jumboIcon != null)
+            {
+                return jumboIcon;
+            }
+
             var thumbnail = await TryGetThumbnailAsync(iconPath);
             if (thumbnail != null)
             {
@@ -110,6 +116,76 @@ namespace AMBATU_LAUNCH.Helpers
                 // Ignore and fall back to shell icon extraction.
             }
 
+            return null;
+        }
+
+        private const int SHIL_JUMBO = 4;
+        private const uint SHGFI_SYSICONINDEX = 0x4000;
+        private const int ILD_TRANSPARENT = 0x00000001;
+
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        private static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, uint uFlags);
+
+        [DllImport("shell32.dll", EntryPoint = "#727")]
+        private static extern int SHGetImageList(int iImageList, ref Guid riid, out IImageList ppv);
+
+        [ComImport]
+        [Guid("46EB5926-582E-4017-9FDF-E8998DAA0950")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        private interface IImageList
+        {
+            [PreserveSig] int Add(IntPtr hbmImage, IntPtr hbmMask, ref int pi);
+            [PreserveSig] int ReplaceIcon(int i, IntPtr hicon, ref int pi);
+            [PreserveSig] int SetOverlayImage(int iImage, int iOverlay);
+            [PreserveSig] int Replace(int i, IntPtr hbmImage, IntPtr hbmMask);
+            [PreserveSig] int AddMasked(IntPtr hbmImage, uint crMask, ref int pi);
+            [PreserveSig] int Draw(IntPtr pimldp);
+            [PreserveSig] int Remove(int i);
+            [PreserveSig] int GetIcon(int i, int flags, ref IntPtr picon);
+        }
+
+        private static async Task<BitmapImage?> GetJumboShellIconAsync(string path)
+        {
+            var shinfo = new SHFILEINFO();
+            IntPtr res = SHGetFileInfo(path, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), SHGFI_SYSICONINDEX);
+            if (res == IntPtr.Zero) return null;
+
+            int iconIndex = shinfo.iIcon;
+            var iidImageList = new Guid("46EB5926-582E-4017-9FDF-E8998DAA0950");
+            
+            int hr = SHGetImageList(SHIL_JUMBO, ref iidImageList, out IImageList? imageList);
+            if (hr == 0 && imageList != null)
+            {
+                IntPtr hIcon = IntPtr.Zero;
+                imageList.GetIcon(iconIndex, ILD_TRANSPARENT, ref hIcon);
+                
+                if (hIcon != IntPtr.Zero)
+                {
+                    try
+                    {
+                        var icon = System.Drawing.Icon.FromHandle(hIcon);
+                        using var bmp = icon.ToBitmap();
+                        using var memoryStream = new MemoryStream();
+                        bmp.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+                        memoryStream.Position = 0;
+                        
+                        var stream = new InMemoryRandomAccessStream();
+                        var destStream = stream.AsStreamForWrite();
+                        await memoryStream.CopyToAsync(destStream);
+                        await destStream.FlushAsync();
+                        stream.Seek(0);
+                        
+                        var bitmapImage = new BitmapImage();
+                        await bitmapImage.SetSourceAsync(stream);
+                        return bitmapImage;
+                    }
+                    catch { }
+                    finally
+                    {
+                        DestroyIcon(hIcon);
+                    }
+                }
+            }
             return null;
         }
 
