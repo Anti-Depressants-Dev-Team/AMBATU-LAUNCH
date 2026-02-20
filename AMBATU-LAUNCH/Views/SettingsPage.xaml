@@ -1,0 +1,21 @@
+<Page
+    x:Class="AMBATU_LAUNCH.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:AMBATU_LAUNCH.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <StackPanel Padding="24">
+        <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,24"/>
+        
+        <TextBlock Text="Customization" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,12"/>
+        <ToggleSwitch Header="Use Dark Mode" IsOn="True" />
+        <ToggleSwitch Header="Show Animations" IsOn="True" />
+        
+        <TextBlock Text="About" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,24,0,12"/>
+        <TextBlock Text="AMBATU LAUNCH v1.0.0" />
+        <TextBlock Text="Developed by Antigravity" Opacity="0.6"/>
+    </StackPanel>
+</Page>
