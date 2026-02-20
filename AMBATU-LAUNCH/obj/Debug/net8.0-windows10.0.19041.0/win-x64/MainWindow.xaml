@@ -14,14 +14,14 @@
                                                          
                                                >
             <NavigationView.MenuItems>
-                <NavigationViewItem Icon="Home" Content="Home" Tag="AMBATU_LAUNCH.Views.HomePage" />
-                <NavigationViewItemSeparator />
-                <NavigationViewItemHeader Content="Categories" />
-                <NavigationViewItem Icon="Folder" Content="Utilities" Tag="CategoryId_Utilities" />
-                <NavigationViewItem Icon="Play" Content="Games" Tag="CategoryId_Games" />
+                <!-- Items will be populated dynamically in code-behind -->
             </NavigationView.MenuItems>
 
-            <Frame x:ConnectionId='3' x:Name="ContentFrame" />
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem x:ConnectionId='3' x:Name="AddTabButton" Icon="Add" Content="Add Tab"                             />
+            </NavigationView.FooterMenuItems>
+
+            <Frame x:ConnectionId='4' x:Name="ContentFrame" />
         </NavigationView>
     </Grid>
 </Window>

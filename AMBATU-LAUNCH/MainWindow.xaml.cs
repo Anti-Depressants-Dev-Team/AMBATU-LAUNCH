@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Linq;
+using System.Collections.Specialized;
 
 namespace AMBATU_LAUNCH
 {
@@ -12,13 +13,90 @@ namespace AMBATU_LAUNCH
         {
             this.InitializeComponent();
             this.Title = "AMBATU LAUNCH";
+
+            IntPtr hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            Microsoft.UI.WindowId windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+            Microsoft.UI.Windowing.AppWindow appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+            appWindow.SetIcon("app.ico");
+
+            SystemBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop();
+
+            App.Categories.CollectionChanged += Categories_CollectionChanged;
         }
 
-        private void NavView_Loaded(object sender, RoutedEventArgs e)
+        private async void NavView_Loaded(object sender, RoutedEventArgs e)
         {
+            await App.EnsureAppsLoadedAsync();
+            BuildNavigationItems();
+            
             // NavView doesn't load any page by default, so load home page.
-            NavView.SelectedItem = NavView.MenuItems[0];
-            NavView_Navigate(typeof(HomePage), new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo());
+            if (NavView.MenuItems.Count > 0)
+            {
+                NavView.SelectedItem = NavView.MenuItems[0];
+            }
+            NavView_Navigate(typeof(HomePage), new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo(), "Home");
+        }
+
+        private void Categories_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            BuildNavigationItems();
+        }
+
+        private void BuildNavigationItems()
+        {
+            NavView.MenuItems.Clear();
+            foreach (var category in App.Categories)
+            {
+                var icon = category == "Home" ? new SymbolIcon(Symbol.Home) : new SymbolIcon(Symbol.Folder);
+                var navItem = new NavigationViewItem
+                {
+                    Content = category,
+                    Icon = icon,
+                    Tag = category
+                };
+
+                if (category != "Home")
+                {
+                    var flyout = new MenuFlyout();
+                    var removeMenuItem = new MenuFlyoutItem { Text = "Remove Tab", Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red) };
+                    removeMenuItem.Click += async (s, e) =>
+                    {
+                        var dialog = new ContentDialog
+                        {
+                            Title = "Remove Category",
+                            Content = $"Are you sure you want to remove the '{category}' tab? Applications inside will be moved to the 'Home' tab.",
+                            PrimaryButtonText = "Remove",
+                            CloseButtonText = "Cancel",
+                            DefaultButton = ContentDialogButton.Close,
+                            XamlRoot = this.Content.XamlRoot
+                        };
+
+                        var result = await dialog.ShowAsync();
+                        if (result == ContentDialogResult.Primary)
+                        {
+                            // Move apps to home
+                            bool appsModified = false;
+                            foreach (var app in App.Apps.Where(a => a.Category == category).ToList())
+                            {
+                                app.Category = "Home";
+                                appsModified = true;
+                            }
+
+                            if (appsModified)
+                            {
+                                await App.SaveAppsAsync();
+                            }
+
+                            App.Categories.Remove(category);
+                            await App.SaveCategoriesAsync();
+                        }
+                    };
+                    flyout.Items.Add(removeMenuItem);
+                    navItem.ContextFlyout = flyout;
+                }
+
+                NavView.MenuItems.Add(navItem);
+            }
         }
 
         private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
@@ -29,19 +107,36 @@ namespace AMBATU_LAUNCH
             }
             else if (args.InvokedItemContainer != null)
             {
-                var navItemTag = args.InvokedItemContainer.Tag.ToString();
-                
-                // If it's a category, we might want to filter the HomePage. 
-                // For now, let's just interpret "Home" as the HomePage without filter.
-                if (navItemTag == "AMBATU_LAUNCH.Views.HomePage")
+                var navItemTag = args.InvokedItemContainer.Tag?.ToString() ?? "Home";
+                NavView_Navigate(typeof(HomePage), args.RecommendedNavigationTransitionInfo, navItemTag);
+            }
+        }
+
+        private async void AddTabButton_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            var textBox = new TextBox
+            {
+                PlaceholderText = "Enter category name..."
+            };
+
+            var dialog = new ContentDialog
+            {
+                Title = "Add New Category",
+                Content = textBox,
+                PrimaryButtonText = "Add",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                var categoryName = textBox.Text.Trim();
+                if (!string.IsNullOrWhiteSpace(categoryName) && !App.Categories.Contains(categoryName))
                 {
-                     NavView_Navigate(typeof(HomePage), args.RecommendedNavigationTransitionInfo);
-                }
-                else
-                {
-                    // For categories, pass the tag to HomePage to filter? 
-                    // Or just navigate to HomePage with parameter.
-                     NavView_Navigate(typeof(HomePage), args.RecommendedNavigationTransitionInfo, navItemTag);
+                    App.Categories.Add(categoryName);
+                    await App.SaveCategoriesAsync();
                 }
             }
         }

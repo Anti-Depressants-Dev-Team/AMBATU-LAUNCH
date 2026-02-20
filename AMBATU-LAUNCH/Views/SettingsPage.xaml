@@ -16,6 +16,5 @@
         
         <TextBlock Text="About" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,24,0,12"/>
         <TextBlock Text="AMBATU LAUNCH v1.0.0" />
-        <TextBlock Text="Developed by Antigravity" Opacity="0.6"/>
     </StackPanel>
 </Page>

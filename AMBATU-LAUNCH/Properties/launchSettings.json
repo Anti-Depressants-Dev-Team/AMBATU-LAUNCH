@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AMBATU-LAUNCH (Unpackaged)": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}
