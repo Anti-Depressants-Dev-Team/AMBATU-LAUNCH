@@ -1,4 +1,6 @@
 using AMBATU_LAUNCH.Views;
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -18,6 +20,16 @@ namespace AMBATU_LAUNCH
             Microsoft.UI.WindowId windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
             Microsoft.UI.Windowing.AppWindow appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
             appWindow.SetIcon(System.IO.Path.Combine(System.AppContext.BaseDirectory, "app.ico"));
+
+            // Make the title bar blend with the Mica backdrop
+            var titleBar = appWindow.TitleBar;
+            titleBar.ExtendsContentIntoTitleBar = true;
+            titleBar.BackgroundColor = Colors.Transparent;
+            titleBar.InactiveBackgroundColor = Colors.Transparent;
+            titleBar.ButtonBackgroundColor = Colors.Transparent;
+            titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            titleBar.ForegroundColor = Colors.White;
+            titleBar.ButtonForegroundColor = Colors.White;
 
             SystemBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop();
 

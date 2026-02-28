@@ -1,6 +1,6 @@
 [Setup]
 AppName=AMBATU LAUNCH
-AppVersion=1.0.2
+AppVersion=1.0.3
 AppPublisher=Antidepressants Dev Team
 DefaultDirName={autopf}\AMBATU LAUNCH
 DefaultGroupName=AMBATU LAUNCH

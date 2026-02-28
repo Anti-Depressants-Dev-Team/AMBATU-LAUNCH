@@ -12,11 +12,11 @@ using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("AMBATU-LAUNCH")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+25318c8766784a331dbf97ff8cdb0b063c6743dd")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.2+dc5b764bc1b0d66ffc52ac2145e815cf245d95ef")]
 [assembly: System.Reflection.AssemblyProductAttribute("AMBATU-LAUNCH")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AMBATU-LAUNCH")]
-[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.2")]
 [assembly: System.Runtime.Versioning.TargetPlatformAttribute("Windows10.0.19041.0")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows10.0.17763.0")]
 

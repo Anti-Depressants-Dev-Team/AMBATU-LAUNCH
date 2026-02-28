@@ -145,7 +145,7 @@ namespace AMBATU_LAUNCH
 
                 foreach (var entry in entries)
                 {
-                    if (string.IsNullOrWhiteSpace(entry.ExecutablePath) || !File.Exists(entry.ExecutablePath))
+                    if (string.IsNullOrWhiteSpace(entry.ExecutablePath))
                     {
                         continue;
                     }
@@ -181,7 +181,7 @@ namespace AMBATU_LAUNCH
         {
             try
             {
-                var folderPath = ApplicationData.Current.LocalFolder.Path;
+                var folderPath = GetAppDataFolder();
                 var filePath = Path.Combine(folderPath, SettingsFileName);
                 if (File.Exists(filePath))
                 {
@@ -223,7 +223,7 @@ namespace AMBATU_LAUNCH
                 do
                 {
                     _pendingSettingsSave = false;
-                    var folderPath = ApplicationData.Current.LocalFolder.Path;
+                    var folderPath = GetAppDataFolder();
                     var filePath = Path.Combine(folderPath, SettingsFileName);
                     var settings = new AppSettings { IconSize = IconSize, IsListViewMode = IsListViewMode };
                     var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
@@ -265,15 +265,25 @@ namespace AMBATU_LAUNCH
             return tcs.Task;
         }
 
+        private static string GetAppDataFolder()
+        {
+            var folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AMBATU_LAUNCH");
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            return folderPath;
+        }
+
         private static string GetAppsFilePath()
         {
-            var folderPath = ApplicationData.Current.LocalFolder.Path;
+            var folderPath = GetAppDataFolder();
             return Path.Combine(folderPath, AppsFileName);
         }
 
         private static string GetCategoriesFilePath()
         {
-            var folderPath = ApplicationData.Current.LocalFolder.Path;
+            var folderPath = GetAppDataFolder();
             return Path.Combine(folderPath, CategoriesFileName);
         }
 
