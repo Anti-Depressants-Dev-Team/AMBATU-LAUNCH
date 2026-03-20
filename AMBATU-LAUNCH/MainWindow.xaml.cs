@@ -59,24 +59,43 @@ namespace AMBATU_LAUNCH
             NavView.MenuItems.Clear();
             foreach (var category in App.Categories)
             {
-                var icon = category == "Home" ? new SymbolIcon(Symbol.Home) : new SymbolIcon(Symbol.Folder);
+                IconElement icon;
+                if (System.IO.File.Exists(category.Icon))
+                {
+                    icon = new BitmapIcon { UriSource = new Uri(category.Icon), ShowAsMonochrome = false };
+                }
+                else
+                {
+                    Symbol iconSymbol;
+                    if (!Enum.TryParse<Symbol>(category.Icon, out iconSymbol))
+                    {
+                        iconSymbol = category.Name == "Home" ? Symbol.Home : Symbol.Folder;
+                    }
+                    icon = new SymbolIcon(iconSymbol);
+                }
+
                 var navItem = new NavigationViewItem
                 {
-                    Content = category,
+                    Content = category.Name,
                     Icon = icon,
-                    Tag = category
+                    Tag = category.Name
                 };
 
-                if (category != "Home")
+                if (category.Name != "Home")
                 {
                     var flyout = new MenuFlyout();
+
+                    var editMenuItem = new MenuFlyoutItem { Text = "Edit Tab" };
+                    editMenuItem.Click += async (s, e) => { await EditCategoryAsync(category); };
+                    flyout.Items.Add(editMenuItem);
+
                     var removeMenuItem = new MenuFlyoutItem { Text = "Remove Tab", Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red) };
                     removeMenuItem.Click += async (s, e) =>
                     {
                         var dialog = new ContentDialog
                         {
                             Title = "Remove Category",
-                            Content = $"Are you sure you want to remove the '{category}' tab? Applications inside will be moved to the 'Home' tab.",
+                            Content = $"Are you sure you want to remove the '{category.Name}' tab? Applications inside will be moved to the 'Home' tab.",
                             PrimaryButtonText = "Remove",
                             CloseButtonText = "Cancel",
                             DefaultButton = ContentDialogButton.Close,
@@ -88,7 +107,7 @@ namespace AMBATU_LAUNCH
                         {
                             // Move apps to home
                             bool appsModified = false;
-                            foreach (var app in App.Apps.Where(a => a.Category == category).ToList())
+                            foreach (var app in App.Apps.Where(a => a.Category == category.Name).ToList())
                             {
                                 app.Category = "Home";
                                 appsModified = true;
@@ -108,6 +127,130 @@ namespace AMBATU_LAUNCH
                 }
 
                 NavView.MenuItems.Add(navItem);
+            }
+        }
+
+        private async System.Threading.Tasks.Task EditCategoryAsync(AMBATU_LAUNCH.Models.CategoryItem category)
+        {
+            var oldName = category.Name;
+
+            var stackPanel = new StackPanel { Spacing = 12 };
+
+            var nameTextBox = new TextBox
+            {
+                Header = "Name",
+                Text = category.Name
+            };
+
+            var iconComboBox = new ComboBox
+            {
+                Header = "Icon",
+                ItemsSource = Enum.GetNames(typeof(Symbol)).OrderBy(s => s).ToList(),
+                SelectedItem = category.Icon,
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+
+            var browseButton = new Button
+            {
+                Content = "Browse for custom icon...",
+                Margin = new Thickness(0, 0, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+
+            var customIconPathText = new TextBlock
+            {
+                Text = System.IO.File.Exists(category.Icon) ? category.Icon : "No custom icon selected",
+                FontSize = 12,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Gray)
+            };
+
+            browseButton.Click += async (s, e) =>
+            {
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+                picker.FileTypeFilter.Add(".png");
+                picker.FileTypeFilter.Add(".jpg");
+                picker.FileTypeFilter.Add(".jpeg");
+                picker.FileTypeFilter.Add(".ico");
+
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+                var file = await picker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    customIconPathText.Text = file.Path;
+                    iconComboBox.SelectedItem = null; // Clear symbol selection if a file is picked
+                }
+            };
+
+            stackPanel.Children.Add(nameTextBox);
+            stackPanel.Children.Add(iconComboBox);
+            stackPanel.Children.Add(browseButton);
+            stackPanel.Children.Add(customIconPathText);
+
+            var dialog = new ContentDialog
+            {
+                Title = "Edit Category",
+                Content = stackPanel,
+                PrimaryButtonText = "Save",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                var newName = nameTextBox.Text.Trim();
+                var newIcon = !string.IsNullOrEmpty(customIconPathText.Text) && System.IO.File.Exists(customIconPathText.Text)
+                    ? customIconPathText.Text
+                    : (iconComboBox.SelectedItem as string ?? "Folder");
+
+                if (string.IsNullOrWhiteSpace(newName)) return;
+
+                bool nameChanged = oldName != newName;
+                bool iconChanged = category.Icon != newIcon;
+
+                if (nameChanged && App.Categories.Any(c => c.Name == newName && c != category))
+                {
+                    // Can't rename to an existing category
+                    return;
+                }
+
+                if (nameChanged || iconChanged)
+                {
+                    category.Name = newName;
+                    category.Icon = newIcon;
+
+                    if (nameChanged)
+                    {
+                        bool appsModified = false;
+                        foreach (var app in App.Apps.Where(a => a.Category == oldName).ToList())
+                        {
+                            app.Category = newName;
+                            appsModified = true;
+                        }
+
+                        if (appsModified)
+                        {
+                            await App.SaveAppsAsync();
+                        }
+                    }
+
+                    await App.SaveCategoriesAsync();
+                    
+                    BuildNavigationItems();
+
+                    if (ContentFrame.CurrentSourcePageType == typeof(HomePage) && Equals(_lastParam, oldName))
+                    {
+                        var transitionInfo = new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo();
+                        _lastParam = null;
+                        NavView_Navigate(typeof(HomePage), transitionInfo, newName);
+                    }
+                }
             }
         }
 
@@ -145,9 +288,9 @@ namespace AMBATU_LAUNCH
             if (result == ContentDialogResult.Primary)
             {
                 var categoryName = textBox.Text.Trim();
-                if (!string.IsNullOrWhiteSpace(categoryName) && !App.Categories.Contains(categoryName))
+                if (!string.IsNullOrWhiteSpace(categoryName) && !App.Categories.Any(c => c.Name == categoryName))
                 {
-                    App.Categories.Add(categoryName);
+                    App.Categories.Add(new AMBATU_LAUNCH.Models.CategoryItem { Name = categoryName, Icon = "Folder" });
                     await App.SaveCategoriesAsync();
                 }
             }

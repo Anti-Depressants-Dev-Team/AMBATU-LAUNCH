@@ -18,7 +18,7 @@ namespace AMBATU_LAUNCH
     {
         public static Window? MainWindow { get; private set; }
         public static ObservableCollection<AppItem> Apps { get; } = new ObservableCollection<AppItem>();
-        public static ObservableCollection<string> Categories { get; } = new ObservableCollection<string> { "Home" };
+        public static ObservableCollection<CategoryItem> Categories { get; } = new ObservableCollection<CategoryItem> { new CategoryItem { Name = "Home", Icon = "Home" } };
         public static double IconSize { get; private set; } = DefaultIconSize;
         public static bool IsListViewMode { get; private set; } = false;
         public static DispatcherQueue? UiDispatcher { get; private set; }
@@ -312,18 +312,39 @@ namespace AMBATU_LAUNCH
                 }
 
                 var json = await File.ReadAllTextAsync(filePath);
-                var categories = JsonSerializer.Deserialize<List<string>>(json);
-                if (categories != null && categories.Count > 0)
+                try
                 {
-                    await RunOnUiThreadAsync(() =>
+                    var categories = JsonSerializer.Deserialize<List<CategoryItem>>(json);
+                    if (categories != null && categories.Count > 0)
                     {
-                        Categories.Clear();
-                        foreach (var cat in categories)
+                        await RunOnUiThreadAsync(() =>
                         {
-                            Categories.Add(cat);
-                        }
-                        return Task.CompletedTask;
-                    });
+                            Categories.Clear();
+                            foreach (var cat in categories)
+                            {
+                                Categories.Add(cat);
+                            }
+                            return Task.CompletedTask;
+                        });
+                        return;
+                    }
+                }
+                catch (JsonException)
+                {
+                    // Fallback to List<string> for older versions
+                    var stringCategories = JsonSerializer.Deserialize<List<string>>(json);
+                    if (stringCategories != null && stringCategories.Count > 0)
+                    {
+                        await RunOnUiThreadAsync(() =>
+                        {
+                            Categories.Clear();
+                            foreach (var cat in stringCategories)
+                            {
+                                Categories.Add(new CategoryItem { Name = cat, Icon = cat == "Home" ? "Home" : "Folder" });
+                            }
+                            return Task.CompletedTask;
+                        });
+                    }
                 }
             }
             catch

@@ -185,7 +185,7 @@ namespace AMBATU_LAUNCH.Views
             {
                 var comboBox = new ComboBox
                 {
-                    ItemsSource = App.Categories,
+                    ItemsSource = App.Categories.Select(c => c.Name).ToList(),
                     SelectedItem = app.Category,
                     HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Stretch
                 };
